@@ -1,0 +1,263 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        tools:context=".ui.home.HomeFragment">
+
+        <Button
+            android:id="@+id/logOut"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:fontFamily="@font/varela_round"
+            android:onClick="logOut"
+            android:text="Log Out"
+            android:textAllCaps="false"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.949"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:id="@+id/batteryLevel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:fontFamily="@font/varela_round"
+            android:text="Battery:"
+            android:textSize="18sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <FrameLayout
+            android:id="@+id/mapContainer"
+            android:layout_width="408dp"
+            android:layout_height="259dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.153">
+
+            <!-- Note: The id should be the same as the one used in the HomeFragment.java file -->
+            <fragment
+                android:id="@+id/map"
+                android:name="com.google.android.gms.maps.SupportMapFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                tools:context="com.example.capstone.HomeFragment" />
+
+        </FrameLayout>
+
+
+        <RelativeLayout
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:id="@+id/component_1"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="9dp"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="350dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/imageView"
+                android:layout_width="100dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:src="@drawable/ellipse_2" />
+
+            <TextView
+                android:id="@+id/o2"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginTop="5dp"
+                android:text="@string/o2"
+                android:textAppearance="@style/o2"
+                android:gravity="center_horizontal|top"
+                />
+
+            <TextView
+                android:id="@+id/o2num"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginTop="30dp"
+                android:text="N/A"
+                android:textAppearance="@style/some_id"
+                android:gravity="center_horizontal|top"
+                />
+
+            <TextView
+                android:id="@+id/spo2"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginTop="60dp"
+                android:text="@string/spo2"
+                android:textAppearance="@style/spo2"
+                android:gravity="center_horizontal|top"
+                />
+
+        </RelativeLayout>
+        <RelativeLayout
+            android:id="@+id/component_2"
+            android:layout_width="100dp"
+            android:layout_height="100dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="145dp"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="350dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent">
+
+            <ImageView
+                android:id="@+id/imageView6"
+                android:layout_width="100dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:src="@drawable/ellipse_2" />
+
+            <ImageView
+                android:id="@+id/imageView3"
+                android:layout_width="23dp"
+                android:layout_height="20dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginStart="25dp"
+                android:layout_marginLeft="25dp"
+                android:layout_marginTop="13dp"
+                android:layout_marginEnd="25dp"
+                android:layout_marginRight="42dp"
+                android:layout_marginBottom="70dp"
+                android:src="@drawable/_icon__heart_" />
+
+            <TextView
+                android:id="@+id/bpm"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginTop="30dp"
+                android:text="N/A"
+                android:textAppearance="@style/bpm"
+                android:gravity="center_horizontal|top"
+                />
+
+            <TextView
+                android:id="@+id/bpm_text"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginTop="60dp"
+                android:text="@string/bpm_text"
+                android:textAppearance="@style/bpm_text"
+                android:gravity="center_horizontal|top"
+                />
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/component_3"
+            android:layout_width="100dp"
+            android:layout_height="102.04dp"
+            android:layout_alignParentLeft="true"
+            android:layout_marginLeft="280dp"
+            android:layout_alignParentTop="true"
+            android:layout_marginTop="350dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            >
+            <ImageView
+                android:id="@+id/imageView1"
+                android:layout_width="100dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:src="@drawable/ellipse_2" />
+
+            <ImageView
+                android:id="@+id/imageView5"
+                android:layout_width="23dp"
+                android:layout_height="20dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginStart="25dp"
+                android:layout_marginLeft="25dp"
+                android:layout_marginTop="13dp"
+                android:layout_marginEnd="25dp"
+                android:layout_marginRight="42dp"
+                android:layout_marginBottom="70dp"
+                android:src="@drawable/vector" />
+
+            <TextView
+                android:id="@+id/steps"
+                android:layout_width="83dp"
+                android:layout_height="28dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginLeft="6dp"
+                android:layout_marginTop="31dp"
+                android:layout_marginBottom="43dp"
+                android:gravity="center_horizontal|top"
+                android:text="N/A"
+                android:textAppearance="@style/steps" />
+
+            <TextView
+                android:id="@+id/steps_text"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_alignParentLeft="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentBottom="true"
+                android:layout_marginTop="61dp"
+                android:text="@string/steps_text"
+                android:textAppearance="@style/steps_text"
+                android:gravity="center_horizontal|top"
+                />
+
+
+        </RelativeLayout>
+
+        <ImageView
+            android:id="@+id/imageView4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="16dp"
+            android:src="@drawable/tabler_battery_4"
+            app:layout_constraintStart_toEndOf="@+id/batteryLevel"
+            app:layout_constraintTop_toTopOf="parent" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>
