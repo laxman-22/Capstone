@@ -42,6 +42,22 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
 
     private SupportMapFragment mapFragment;
 
+    private Handler pulseHandler = new Handler();
+    private Handler oxHandler = new Handler();
+    private Handler stepsHandler = new Handler();
+
+    private Handler batteryHandler = new Handler();
+
+
+    private Runnable refreshBpm;
+
+    private Runnable refreshOx;
+
+    private Runnable refreshSteps;
+
+    private Runnable refreshBattery;
+
+
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,10 +99,44 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         super.onResume();
         Log.d("Resumed", "Resumed");
 
-        updateBpm(bpm);
-        updateO2(oxSat);
-        updateSteps(steps);
-        updateBatteryLevel(battery);
+        if (refreshBpm == null && refreshOx == null && refreshSteps == null) {
+            refreshBpm = new Runnable() {
+                @Override
+                public void run() {
+                    updateBpm(bpm);
+                    pulseHandler.postDelayed(this, 500);
+                }
+            };
+            pulseHandler.postDelayed(refreshBpm,500);
+
+            refreshOx = new Runnable() {
+                @Override
+                public void run() {
+                    updateO2(oxSat);
+                    oxHandler.postDelayed(this, 500);
+                }
+            };
+            oxHandler.postDelayed(refreshOx, 500);
+
+            refreshSteps = new Runnable() {
+                @Override
+                public void run() {
+                    updateSteps(steps);
+                    stepsHandler.postDelayed(this, 500);            }
+            };
+            stepsHandler.postDelayed(refreshSteps, 500);
+
+            refreshBattery = new Runnable() {
+                @Override
+                public void run() {
+                    updateBatteryLevel(battery);
+                    batteryHandler.postDelayed(this, 500);
+                }
+            };
+            batteryHandler.postDelayed(refreshBattery, 500);
+        }
+
+
         Thread thread = new Thread(() -> {
             while (mMap == null && mapFragment == null) {
                 try {
@@ -99,17 +149,24 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         });
         thread.start();
         if (isMapReady && mMap != null && mapFragment != null && location != null) {
+
             updateLocation(location);
         }
     }
 
     public void updateBpm(int newBpm) {
+        if (getView() == null) {
+            return;
+        }
         TextView bpm = (TextView) getView().findViewById(R.id.bpm);
         if (bpm != null) {
             bpm.setText(Integer.toString(newBpm));
         }
     }
     public void updateO2(int newO2) {
+        if (getView() == null) {
+            return;
+        }
         TextView spo2 = (TextView) getView().findViewById(R.id.o2num);
         if (spo2 != null) {
             spo2.setText(Integer.toString(newO2)+"%");
@@ -118,6 +175,9 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     }
 
     public void updateSteps(int newSteps) {
+        if (getView() == null) {
+            return;
+        }
         TextView steps = (TextView) getView().findViewById(R.id.steps);
         if (steps != null) {
             steps.setText(Integer.toString(newSteps));
@@ -125,6 +185,9 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     }
 
     public void updateBatteryLevel(int batteryPercentage) {
+        if (getView() == null) {
+            return;
+        }
         ImageView battery = (ImageView) getView().findViewById(R.id.imageView4);
         if (75 < batteryPercentage && batteryPercentage <= 100) {
             battery.setImageResource(R.drawable.tabler_battery_4);
