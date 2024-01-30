@@ -17,6 +17,7 @@ import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.example.capstone.databinding.FragmentHomeBinding;
 
@@ -29,14 +30,18 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     private GoogleMap mMap;
 
     public static int bpm;
+
     public static int steps;
     public static int oxSat;
+
+    public static Float lat;
+
+    public static Float lon;
     public static int alert;
 
     public static int battery;
 
     private boolean isMapReady;
-    public static LatLng location = new LatLng(40, 75);
 
     private FragmentHomeBinding binding;
 
@@ -83,7 +88,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
         Log.d("Map State", "Map Ready");
         mMap = googleMap;
 
-        location = new LatLng(45.3876, -75.6960);
+        LatLng location = new LatLng(45.3876, -75.6960);
 
         mMap.addMarker(new MarkerOptions().position(location).title("Marker in Carleton"));
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location, 15.0f));
@@ -104,36 +109,36 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
                 @Override
                 public void run() {
                     updateBpm(bpm);
-                    pulseHandler.postDelayed(this, 500);
+                    pulseHandler.postDelayed(this, 10);
                 }
             };
-            pulseHandler.postDelayed(refreshBpm,500);
+            pulseHandler.postDelayed(refreshBpm,10);
 
             refreshOx = new Runnable() {
                 @Override
                 public void run() {
                     updateO2(oxSat);
-                    oxHandler.postDelayed(this, 500);
+                    oxHandler.postDelayed(this, 10);
                 }
             };
-            oxHandler.postDelayed(refreshOx, 500);
+            oxHandler.postDelayed(refreshOx, 10);
 
             refreshSteps = new Runnable() {
                 @Override
                 public void run() {
                     updateSteps(steps);
-                    stepsHandler.postDelayed(this, 500);            }
+                    stepsHandler.postDelayed(this, 10);            }
             };
-            stepsHandler.postDelayed(refreshSteps, 500);
+            stepsHandler.postDelayed(refreshSteps, 10);
 
             refreshBattery = new Runnable() {
                 @Override
                 public void run() {
                     updateBatteryLevel(battery);
-                    batteryHandler.postDelayed(this, 500);
+                    batteryHandler.postDelayed(this, 10);
                 }
             };
-            batteryHandler.postDelayed(refreshBattery, 500);
+            batteryHandler.postDelayed(refreshBattery, 10);
         }
 
 
@@ -148,8 +153,10 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
             isMapReady = true;
         });
         thread.start();
-        if (isMapReady && mMap != null && mapFragment != null && location != null) {
-
+        if (isMapReady && mMap != null && mapFragment != null && lat != null && lon != null) {
+            float latitude = lat;
+            float longitude = lon;
+            LatLng location = new LatLng(latitude, longitude);
             updateLocation(location);
         }
     }
@@ -204,8 +211,8 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     }
 
     public void updateLocation(LatLng location) {
-
-        mMap.addMarker(new MarkerOptions().position(location).title("Current Location"));
+        mMap.clear();
+        mMap.addMarker(new MarkerOptions().position(location).title("Marker"));
         mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(location, 15.0f));
     }
 
