@@ -44,6 +44,7 @@ import com.google.android.gms.maps.model.LatLng;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
@@ -67,7 +68,11 @@ public class AddDeviceActivity extends AppCompatActivity {
     private UUID oxygenUuid = UUID.fromString("19B10001-E8F2-537E-4F6C-D104768A1216");
     private UUID stepUuid = UUID.fromString("19B10001-E8F2-537E-4F6C-D104768A1217");
 
-    private UUID batteryUuid = UUID.fromString("19B10001-E8F2-537E-4F6C-D104768A1218");
+    private UUID latitudeUuid = UUID.fromString("19B10001-E8F2-537E-4F6C-D104768A1218");
+
+    private UUID longitudeUuid = UUID.fromString("19B10001-E8F2-537E-4F6C-D104768A1219");
+
+    private UUID batteryUuid = UUID.fromString("19B10001-E8F2-537E-4F6C-D104768A1220");
 
 
     private boolean scanning;
@@ -121,7 +126,6 @@ public class AddDeviceActivity extends AppCompatActivity {
                 }
             });
             layout.addView(newButton);
-            deviceFound = true;
         } else {
             if (!scanning) {
                 handler.postDelayed(new Runnable() {
@@ -147,12 +151,22 @@ public class AddDeviceActivity extends AppCompatActivity {
         public void onScanResult(int callbackType, ScanResult result) {
             super.onScanResult(callbackType, result);
             BluetoothDevice device = result.getDevice();
-            if (device.getName() != null && device.getName().equals("HEALTH SERVICE") && deviceFound != true) {
-                Log.d("Bluetooth", device.getName().toString());
-                deviceFound = true;
-                arduinoDevice = device;
-                refreshList(findViewById(R.id.imageButton9));
+            try {
+                if (device.getAddress() != null && device.getName().equals("HEALTH SERVICE") && deviceFound != true) {
+                    Log.d("Bluetooth", device.getName().toString());
+                    deviceFound = true;
+                    arduinoDevice = device;
+                    refreshList(findViewById(R.id.imageButton9));
+                } else {
+                    deviceFound = false;
+                    return;
+                }
+
+            } catch (NullPointerException e) {
+                deviceFound = false;
+                return;
             }
+
         }
     };
 
@@ -198,20 +212,17 @@ public class AddDeviceActivity extends AppCompatActivity {
                 BluetoothGattCharacteristic batteryCharacteristic = service.getCharacteristic(batteryUuid);
                 gatt.setCharacteristicNotification(batteryCharacteristic, true);
 
-//                BluetoothGattCharacteristic locationCharacteristic = service.getCharacteristic(locationService);
-//                gatt.setCharacteristicNotification(locationCharacteristic, true);
+                BluetoothGattCharacteristic latCharacteristic = service.getCharacteristic(latitudeUuid);
+                gatt.setCharacteristicNotification(latCharacteristic, true);
 
-
-
-//                BluetoothGattCharacteristic alertCharacteristic = service.getCharacteristic(alertService);
-//                gatt.setCharacteristicNotification(alertCharacteristic, true);
+                BluetoothGattCharacteristic lonCharacteristic = service.getCharacteristic(longitudeUuid);
+                gatt.setCharacteristicNotification(lonCharacteristic, true);
 
                 Thread readPulse = new Thread(() -> {
                     while (true) {
                         gatt.readCharacteristic(pulseCharacteristic);
-
                         try {
-                            Thread.sleep(500);
+                            Thread.sleep(10);
                         } catch (InterruptedException e) {
                             throw new RuntimeException(e);
                         }
@@ -221,12 +232,8 @@ public class AddDeviceActivity extends AppCompatActivity {
                 Thread readOx = new Thread(() -> {
                     while (true) {
                         gatt.readCharacteristic(oxygenCharacteristic);
-//                        gatt.readCharacteristic(batteryCharacteristic);
-//                        gatt.readCharacteristic(locationCharacteristic);
-//                        gatt.readCharacteristic(alertCharacteristic);
-
                         try {
-                            Thread.sleep(500);
+                            Thread.sleep(10);
                         } catch (InterruptedException e) {
                             throw new RuntimeException(e);
                         }
@@ -236,10 +243,8 @@ public class AddDeviceActivity extends AppCompatActivity {
                 Thread readSteps = new Thread(() -> {
                     while (true) {
                         gatt.readCharacteristic(stepCharacteristic);
-
-
                         try {
-                            Thread.sleep(500);
+                            Thread.sleep(10);
                         } catch (InterruptedException e) {
                             throw new RuntimeException(e);
                         }
@@ -249,18 +254,40 @@ public class AddDeviceActivity extends AppCompatActivity {
                 Thread readBattery = new Thread(() -> {
                     while (true) {
                         gatt.readCharacteristic(batteryCharacteristic);
-
                         try {
-                            Thread.sleep(500);
+                            Thread.sleep(10);
                         } catch (InterruptedException e) {
                             throw new RuntimeException(e);
                         }
                     }
                 });
                 readBattery.start();
+                Thread readLat = new Thread(() -> {
+                    while (true) {
+                        gatt.readCharacteristic(latCharacteristic);
+                        try {
+                            Thread.sleep(10);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                });
+                readLat.start();
+                Thread readLon = new Thread(() -> {
+                    while (true) {
+                        gatt.readCharacteristic(lonCharacteristic);
+                        try {
+                            Thread.sleep(10);
+                        } catch (InterruptedException e) {
+                            throw new RuntimeException(e);
+                        }
+                    }
+                });
+                readLon.start();
+
 
             } else {
-                gatt.discoverServices();
+                Log.d("Disconnected Device", "Disconnected Device");
             }
 
         }
@@ -276,38 +303,44 @@ public class AddDeviceActivity extends AppCompatActivity {
             }
 
         }
-        public void broadcastUpdate(BluetoothGattCharacteristic characteristic) {
+        private void broadcastUpdate(BluetoothGattCharacteristic characteristic) {
 
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
+                    byte[] data = characteristic.getValue();
+                    int receivedValue = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).getInt();
+
+                    float result = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).getFloat();
+
 
                     if (characteristic.getUuid().toString().equals(pulseUuid.toString())) {
                         // check if bpm service
-                        byte[] data = characteristic.getValue();
-                        int receivedValue = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).getInt();
                         Log.d("Pulse Data Received", Integer.toString(receivedValue));
                         HomeFragment.bpm = receivedValue;
                     }
                     else if (characteristic.getUuid().toString().equals(oxygenUuid.toString())) {
                         // check if ox service
-                        byte[] data = characteristic.getValue();
-                        int receivedValue = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).getInt();
                         Log.d("Oxygen Data Received", Integer.toString(receivedValue));
                         HomeFragment.oxSat = receivedValue;
                     }
                     else if (characteristic.getUuid().toString().equals(stepUuid.toString())) {
                         // check if step service
-                        byte[] data = characteristic.getValue();
-                        int receivedValue = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).getInt();
                         Log.d("Steps Data Received", Integer.toString(receivedValue));
                         HomeFragment.steps = receivedValue;
                     } else if (characteristic.getUuid().toString().equals(batteryUuid.toString())) {
                         // check if battery service
-                        byte[] data = characteristic.getValue();
-                        int receivedValue = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).getInt();
                         Log.d("Battery Data Received", Integer.toString(receivedValue));
                         HomeFragment.battery = receivedValue;
+                    } else if (characteristic.getUuid().toString().equals(latitudeUuid.toString())) {
+                        // check if lat service
+                        Log.d("Latitude Data Received", ""+result);
+                        HomeFragment.lat = result;
+
+                    } else if (characteristic.getUuid().toString().equals(longitudeUuid.toString())) {
+                        // check if lon service
+                        Log.d("Longitude Data Received", ""+result);
+                        HomeFragment.lon = result;
                     }
 
 
