@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+        <Spinner
+            android:id="@+id/spinner"
+            android:layout_width="145dp"
+            android:layout_height="44dp"
+            android:text="Last 7 Days" />
+
+
+        <ImageView
+            android:id="@+id/stepsImgView"
+            android:layout_width="23dp"
+            android:layout_height="20dp"
+            android:layout_marginLeft="20dp"
+            android:src="@drawable/material_symbols_steps_outline"/>
+
+        <com.github.mikephil.charting.charts.BarChart
+            android:id="@+id/stepsChart"
+            android:layout_width="match_parent"
+            android:layout_height="300dp"/>
+
+    </LinearLayout>
+
+
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

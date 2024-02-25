@@ -27,10 +27,12 @@ import androidx.lifecycle.ViewModelProvider;
 
 import com.example.capstone.R;
 import com.example.capstone.databinding.FragmentNotificationsBinding;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class NotificationsFragment extends Fragment {
 
     private FragmentNotificationsBinding binding;
+
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
@@ -46,7 +48,6 @@ public class NotificationsFragment extends Fragment {
 //        createNotification("Fall Detected", "A fall has been detected, notifying emergency contacts.");
 //        createNotification("Abnormal Pulse Detected!", "Contact your health provider.");
 //        createNotification("Low Oxygen Sat. Detected!", "Contact your health provider.");
-
         return root;
     }
 
