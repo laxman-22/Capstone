@@ -39,6 +39,21 @@
             android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
             android:screenOrientation="portrait"/>
         <activity
+            android:name=".PulseOxDetailActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".HeartRateDetailActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".StepsDetailActivity"
+            android:exported="false"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
+            android:screenOrientation="portrait"/>
+        <activity
             android:name=".SignUpPage"
             android:exported="false"
             android:theme="@style/Theme.AppCompat.Light.DarkActionBar"

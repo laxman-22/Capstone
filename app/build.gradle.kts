@@ -4,6 +4,7 @@ plugins {
     id("com.google.android.libraries.mapsplatform.secrets-gradle-plugin")
 }
 
+
 android {
     namespace = "com.example.capstone"
     compileSdk = 34
@@ -54,6 +55,7 @@ dependencies {
     androidTestImplementation("androidx.test.ext:junit:1.1.5")
     androidTestImplementation("androidx.test.espresso:espresso-core:3.5.1")
     implementation("com.google.android.ump:user-messaging-platform:2.1.0")
+    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
 
 }
 

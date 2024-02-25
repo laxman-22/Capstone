@@ -4,10 +4,25 @@
     xmlns:tools="http://schemas.android.com/tools">
 
 
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".ui.home.HomeFragment">
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/addDevice"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:clickable="true"
+            android:onClick="addDevice"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.954"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/component_3"
+            app:srcCompat="@android:drawable/ic_input_add" />
+
 
         <Button
             android:id="@+id/logOut"
@@ -38,12 +53,11 @@
         <FrameLayout
             android:id="@+id/mapContainer"
             android:layout_width="408dp"
-            android:layout_height="259dp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_height="400dp"
+            app:layout_constraintBottom_toTopOf="@+id/component_2"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.153">
+            app:layout_constraintTop_toBottomOf="@+id/logOut">
 
             <!-- Note: The id should be the same as the one used in the HomeFragment.java file -->
             <fragment
@@ -57,16 +71,17 @@
 
 
         <RelativeLayout
-            xmlns:android="http://schemas.android.com/apk/res/android"
             android:id="@+id/component_1"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_alignParentLeft="true"
-            android:layout_marginLeft="9dp"
             android:layout_alignParentTop="true"
-            android:layout_marginTop="350dp"
+            android:layout_marginLeft="9dp"
+            android:layout_marginTop="480dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
+            
+
 
             <ImageView
                 android:id="@+id/imageView"
@@ -80,52 +95,57 @@
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_alignParentLeft="true"
-                android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
+                android:layout_alignParentRight="true"
                 android:layout_alignParentBottom="true"
                 android:layout_marginTop="5dp"
-                android:text="@string/o2"
-                android:textAppearance="@style/o2"
                 android:gravity="center_horizontal|top"
-                />
+                android:text="@string/o2"
+                android:textAppearance="@style/o2" />
 
             <TextView
                 android:id="@+id/o2num"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_alignParentLeft="true"
-                android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
+                android:layout_alignParentRight="true"
                 android:layout_alignParentBottom="true"
                 android:layout_marginTop="30dp"
-                android:text="N/A"
-                android:textAppearance="@style/some_id"
                 android:gravity="center_horizontal|top"
-                />
+                android:text="N/A"
+                android:textAppearance="@style/some_id" />
 
             <TextView
                 android:id="@+id/spo2"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_alignParentLeft="true"
-                android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
+                android:layout_alignParentRight="true"
                 android:layout_alignParentBottom="true"
                 android:layout_marginTop="60dp"
-                android:text="@string/spo2"
-                android:textAppearance="@style/spo2"
                 android:gravity="center_horizontal|top"
-                />
+                android:text="@string/spo2"
+                android:textAppearance="@style/spo2" />
+
+            <Button
+                android:id="@+id/openPulse"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                android:onClick="openPulsePage"/>
 
         </RelativeLayout>
+
         <RelativeLayout
             android:id="@+id/component_2"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_alignParentLeft="true"
-            android:layout_marginLeft="145dp"
             android:layout_alignParentTop="true"
-            android:layout_marginTop="350dp"
+            android:layout_marginLeft="145dp"
+            android:layout_marginTop="480dp"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
@@ -157,28 +177,33 @@
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_alignParentLeft="true"
-                android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
+                android:layout_alignParentRight="true"
                 android:layout_alignParentBottom="true"
                 android:layout_marginTop="30dp"
-                android:text="N/A"
-                android:textAppearance="@style/bpm"
                 android:gravity="center_horizontal|top"
-                />
+                android:text="N/A"
+                android:textAppearance="@style/bpm" />
 
             <TextView
                 android:id="@+id/bpm_text"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_alignParentLeft="true"
-                android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
+                android:layout_alignParentRight="true"
                 android:layout_alignParentBottom="true"
                 android:layout_marginTop="60dp"
-                android:text="@string/bpm_text"
-                android:textAppearance="@style/bpm_text"
                 android:gravity="center_horizontal|top"
-                />
+                android:text="@string/bpm_text"
+                android:textAppearance="@style/bpm_text" />
+
+            <Button
+                android:id="@+id/openHeartRate"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                android:onClick="openHeartRatePage"/>
 
         </RelativeLayout>
 
@@ -187,12 +212,12 @@
             android:layout_width="100dp"
             android:layout_height="102.04dp"
             android:layout_alignParentLeft="true"
-            android:layout_marginLeft="280dp"
             android:layout_alignParentTop="true"
-            android:layout_marginTop="350dp"
+            android:layout_marginLeft="280dp"
+            android:layout_marginTop="480dp"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            >
+            app:layout_constraintTop_toTopOf="parent">
+
             <ImageView
                 android:id="@+id/imageView1"
                 android:layout_width="100dp"
@@ -235,14 +260,19 @@
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_alignParentLeft="true"
-                android:layout_alignParentRight="true"
                 android:layout_alignParentTop="true"
+                android:layout_alignParentRight="true"
                 android:layout_alignParentBottom="true"
                 android:layout_marginTop="61dp"
-                android:text="@string/steps_text"
-                android:textAppearance="@style/steps_text"
                 android:gravity="center_horizontal|top"
-                />
+                android:text="@string/steps_text"
+                android:textAppearance="@style/steps_text" />
+            <Button
+                android:id="@+id/openSteps"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/transparent"
+                android:onClick="openStepsPage"/>
 
 
         </RelativeLayout>

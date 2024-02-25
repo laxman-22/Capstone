@@ -36,7 +36,7 @@ public class HomePage extends AppCompatActivity {
         // Passing each menu ID as a set of Ids because each
         // menu should be considered as top level destinations.
         AppBarConfiguration appBarConfiguration = new AppBarConfiguration.Builder(
-                R.id.navigation_home, R.id.navigation_dashboard, R.id.navigation_notifications)
+                R.id.navigation_home, R.id.navigation_settings, R.id.navigation_notifications)
                 .build();
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_home_page);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
@@ -47,7 +47,6 @@ public class HomePage extends AppCompatActivity {
 
 
     }
-
 
 
     public void logOut(View view) {
@@ -64,6 +63,17 @@ public class HomePage extends AppCompatActivity {
         startActivity(i);
     }
 
-
+    public void openPulsePage(View view) {
+        Intent i = new Intent(this, PulseOxDetailActivity.class);
+        startActivity(i);
+    }
+    public void openHeartRatePage(View view) {
+        Intent i = new Intent(this, HeartRateDetailActivity.class);
+        startActivity(i);
+    }
+    public void openStepsPage(View view) {
+        Intent i = new Intent(this, StepsDetailActivity.class);
+        startActivity(i);
+    }
 
 }
