@@ -10,6 +10,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.capstone.HeartRateDetailActivity;
 import com.example.capstone.R;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -31,15 +32,11 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     private GoogleMap mMap;
 
     public static int bpm;
-
     public static int steps;
     public static int oxSat;
-
     public static Float lat;
-
     public static Float lon;
     public static int alert;
-
     public static int battery;
 
     private boolean isMapReady;
@@ -51,10 +48,7 @@ public class HomeFragment extends Fragment implements OnMapReadyCallback {
     private Handler pulseHandler = new Handler();
     private Handler oxHandler = new Handler();
     private Handler stepsHandler = new Handler();
-
     private Handler batteryHandler = new Handler();
-
-
     private Runnable refreshBpm;
 
     private Runnable refreshOx;

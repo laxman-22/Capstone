@@ -14,19 +14,35 @@ import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.github.mikephil.charting.charts.BarChart;
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.Description;
+import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.BarData;
 import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.data.LineData;
+import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.github.mikephil.charting.formatter.ValueFormatter;
 
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 public class PulseOxDetailActivity extends AppCompatActivity implements AdapterView.OnItemSelectedListener {
+
+    private BarChart oxBarChart;
+    public static String selectedTime = "Last 7 Days";
+
+    private LineChart oxLineChart;
+    private List<Entry> lineEntries;
+
+    private final String[] weekLabels = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
+    private final String[] monthLabels = {"Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"};
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +51,8 @@ public class PulseOxDetailActivity extends AppCompatActivity implements AdapterV
         ActionBar actionBar = getSupportActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setTitle("Pulse Oximeter Details");
-        createOxChart();
+        lineEntries = new ArrayList<>();
+        setupGraphs();
         Spinner spinner = findViewById(R.id.spinner);
         ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this, R.array.times, android.R.layout.simple_spinner_dropdown_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -48,8 +65,21 @@ public class PulseOxDetailActivity extends AppCompatActivity implements AdapterV
         startActivity(i);
         return super.onOptionsItemSelected(item);
     }
-    private void createOxChart() {
-        BarChart oxBarChart = findViewById(R.id.oxChart);
+
+
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        selectedTime = parent.getItemAtPosition(position).toString();
+        changeTime();
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+
+    }
+    private void setupGraphs() {
+        oxBarChart = findViewById(R.id.oxBarChart);
+        oxLineChart = findViewById(R.id.oxLineChart);
 
         List<BarEntry> entries = new ArrayList<>();
         entries.add(new BarEntry(0, new float[]{80f, 10f})); // Heart rate range for time 1 (start at 80, height 3)
@@ -69,10 +99,9 @@ public class PulseOxDetailActivity extends AppCompatActivity implements AdapterV
                 return String.format("%.0f%%", value);
             }
         });
-        dataSet.setValueTextSize(12f);
+        dataSet.setValueTextSize(0f);
 
-        String[] labels = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"}; // Example time labels
-        oxBarChart.getXAxis().setValueFormatter(new IndexAxisValueFormatter(labels));
+        oxBarChart.getXAxis().setValueFormatter(new IndexAxisValueFormatter(weekLabels));
         oxBarChart.getXAxis().setPosition(XAxis.XAxisPosition.BOTTOM);
         oxBarChart.getXAxis().setGranularity(1f);
         oxBarChart.getXAxis().setTextSize(18f);
@@ -98,16 +127,147 @@ public class PulseOxDetailActivity extends AppCompatActivity implements AdapterV
 
         oxBarChart.setData(barData);
         oxBarChart.invalidate();
+
+        Random rand = new Random();
+
+        for (int i = 0; i  < 30; i++) {
+            lineEntries.add(new Entry(i+1, rand.nextInt(50)+50));
+        }
+
+        oxLineChart.setTouchEnabled(true);
+        LineDataSet lineDataSet = new LineDataSet(lineEntries, "Heart Rate");
+        lineDataSet.setColor(Color.BLUE);
+        lineDataSet.setValueTextColor(Color.BLACK);
+        lineDataSet.setLineWidth(5f);
+        lineDataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+        lineDataSet.setDrawValues(false);
+
+
+        LineData lineData = new LineData(lineDataSet);
+
+        // Customize chart
+        oxLineChart.setData(lineData);
+
+        Description description = new Description();
+        description.setText("Monthly Heart Rate");
+        oxLineChart.setDescription(description);
+        oxLineChart.getXAxis().setTextSize(18f);
+        oxLineChart.setExtraBottomOffset(20f);
+
+        Legend legend = oxLineChart.getLegend();
+        legend.setEnabled(false);
+
+        XAxis xAxis = oxLineChart.getXAxis();
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+
+        YAxis lineLeftAxis = oxLineChart.getAxisLeft();
+        lineLeftAxis.setAxisMinimum(40f); // Minimum heart rate
+        lineLeftAxis.setAxisMaximum(120f);
+        lineLeftAxis.setTextSize(18f);
+        lineLeftAxis.setGranularity(20f);
+
+        YAxis rightAxis = oxLineChart.getAxisRight();
+        rightAxis.setEnabled(false);
+        oxLineChart.setAutoScaleMinMaxEnabled(true);
+
+        oxLineChart.invalidate(); // Refresh chart
+
+
     }
 
-    @Override
-    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        String selectedTime = parent.getItemAtPosition(position).toString();
+    private void changeTime() {
+
+        if (selectedTime.equals("Last 7 Days")) {
+            oxLineChart.setVisibility(View.GONE);
+            oxBarChart.setVisibility(View.VISIBLE);
+        } else if (selectedTime.equals("Last Month")) {
+            oxBarChart.setVisibility(View.GONE);
+            oxLineChart.setVisibility(View.VISIBLE);
+            lineEntries.clear();
+
+            Description description = new Description();
+            description.setText("Monthly Heart Rate");
+            oxLineChart.setDescription(description);
+            oxLineChart.getXAxis().setTextSize(18f);
+            Random rand = new Random();
+            oxLineChart.getXAxis().setValueFormatter(null);
+
+            for (int i = 0; i  < 30; i++) {
+                lineEntries.add(new Entry(i+1, rand.nextInt(50)+50));
+            }
+            LineDataSet dataSet = new LineDataSet(lineEntries, "Heart Rate");
+            dataSet.setColor(Color.BLUE);
+            dataSet.setValueTextColor(Color.BLACK);
+            dataSet.setLineWidth(5f);
+            dataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+            dataSet.setDrawValues(false);
+
+
+            LineData lineData = new LineData(dataSet);
+            oxLineChart.setData(lineData);
+            oxLineChart.invalidate();
+
+        } else if (selectedTime.equals("Last Year")) {
+            oxBarChart.setVisibility(View.GONE);
+            oxLineChart.setVisibility(View.VISIBLE);
+            lineEntries.clear();
+            Random rand = new Random();
+
+            for (int i = 0; i  < 12; i++) {
+                lineEntries.add(new Entry(i, rand.nextInt(50)+50));
+            }
+
+            LineDataSet dataSet = new LineDataSet(lineEntries, "Heart Rate");
+            dataSet.setColor(Color.BLUE);
+            dataSet.setValueTextColor(Color.BLACK);
+            dataSet.setLineWidth(5f);
+            dataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+            dataSet.setDrawValues(false);
+
+            LineData lineData = new LineData(dataSet);
+
+            // Customize chart
+            oxLineChart.setData(lineData);
+
+            Description description = new Description();
+            description.setText("Yearly Heart Rate");
+            oxLineChart.setDescription(description);
+            oxLineChart.getXAxis().setValueFormatter(new IndexAxisValueFormatter(monthLabels));
+            oxLineChart.getXAxis().setTextSize(18f); // Adjust label text size
+            oxLineChart.invalidate();
+
+        } else if (selectedTime.equals("Last 2 Years")) {
+            oxBarChart.setVisibility(View.GONE);
+            oxLineChart.setVisibility(View.VISIBLE);
+            lineEntries.clear();
+            Random rand = new Random();
+
+            for (int i = 0; i  < 8; i++) {
+                lineEntries.add(new Entry(i, rand.nextInt(50)+50));
+            }
+
+            LineDataSet dataSet = new LineDataSet(lineEntries, "Heart Rate");
+            dataSet.setColor(Color.BLUE);
+            dataSet.setValueTextColor(Color.BLACK);
+            dataSet.setLineWidth(5f);
+            dataSet.setMode(LineDataSet.Mode.CUBIC_BEZIER);
+            dataSet.setDrawValues(false);
+
+            LineData lineData = new LineData(dataSet);
+
+            // Customize chart
+            oxLineChart.setData(lineData);
+
+            Description description = new Description();
+            description.setText("2 Years Heart Rate");
+            oxLineChart.setDescription(description);
+            oxLineChart.getXAxis().setValueFormatter(null);
+            oxLineChart.getXAxis().setTextSize(18f); // Adjust label text size
+            oxLineChart.invalidate();
+
+
+        }
 
     }
 
-    @Override
-    public void onNothingSelected(AdapterView<?> parent) {
-
-    }
 }
