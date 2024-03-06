@@ -126,7 +126,7 @@ public class NotificationsFragment extends Fragment {
         sendNotification(messageType, messageDescription);
     }
 
-    private int dpToPixels(int dp) {
+    public int dpToPixels(int dp) {
         float density = getResources().getDisplayMetrics().density;
         int pixelHeight = (int) (dp * density);
         return pixelHeight;

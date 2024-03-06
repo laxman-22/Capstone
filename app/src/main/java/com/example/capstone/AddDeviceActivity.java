@@ -193,36 +193,29 @@ public class AddDeviceActivity extends AppCompatActivity {
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             super.onServicesDiscovered(gatt, status);
             Log.d("Read Characteristics", "reading...");
-
+            Log.d("services", gatt.getServices().toString());
 
             BluetoothGattService service = gatt.getService(healthService);
-
 
             if (service != null) {
 
                 BluetoothGattCharacteristic pulseCharacteristic = service.getCharacteristic(pulseUuid);
-                gatt.setCharacteristicNotification(pulseCharacteristic, true);
 
                 BluetoothGattCharacteristic oxygenCharacteristic = service.getCharacteristic(oxygenUuid);
-                gatt.setCharacteristicNotification(oxygenCharacteristic, true);
 
                 BluetoothGattCharacteristic stepCharacteristic = service.getCharacteristic(stepUuid);
-                gatt.setCharacteristicNotification(stepCharacteristic, true);
 
                 BluetoothGattCharacteristic batteryCharacteristic = service.getCharacteristic(batteryUuid);
-                gatt.setCharacteristicNotification(batteryCharacteristic, true);
 
                 BluetoothGattCharacteristic latCharacteristic = service.getCharacteristic(latitudeUuid);
-                gatt.setCharacteristicNotification(latCharacteristic, true);
 
                 BluetoothGattCharacteristic lonCharacteristic = service.getCharacteristic(longitudeUuid);
-                gatt.setCharacteristicNotification(lonCharacteristic, true);
 
                 Thread readPulse = new Thread(() -> {
                     while (true) {
                         gatt.readCharacteristic(pulseCharacteristic);
                         try {
-                            Thread.sleep(10);
+                            Thread.sleep(100);
                         } catch (InterruptedException e) {
                             throw new RuntimeException(e);
                         }
@@ -233,7 +226,7 @@ public class AddDeviceActivity extends AppCompatActivity {
                     while (true) {
                         gatt.readCharacteristic(oxygenCharacteristic);
                         try {
-                            Thread.sleep(10);
+                            Thread.sleep(100);
                         } catch (InterruptedException e) {
                             throw new RuntimeException(e);
                         }
@@ -297,6 +290,7 @@ public class AddDeviceActivity extends AppCompatActivity {
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             super.onCharacteristicRead(gatt, characteristic, status);
             Log.d("Characteristic Read", "Characteristic UUID: " + characteristic.getUuid());
+
 
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 broadcastUpdate(characteristic);
