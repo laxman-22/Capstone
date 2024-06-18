@@ -58,6 +58,7 @@
                     android:layout_height="125dp"
                     android:paddingLeft="10dp"
                     android:paddingRight="10dp"
+                    android:paddingTop="10dp"
                     android:src="@drawable/gray_rectangle" />
 
                 <TextView
@@ -65,7 +66,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginLeft="50dp"
-                    android:text="N/A"
+                    android:text="99"
                     android:textSize="40dp"
                     android:layout_centerVertical="true"
                     />
@@ -98,7 +99,42 @@
 
             </RelativeLayout>
 
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
+                <ImageView
+                    android:id="@+id/quickTipsBackground"
+                    android:layout_width="match_parent"
+                    android:layout_height="125dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:paddingTop="10dp"
+                    android:src="@drawable/gray_rectangle" />
+
+
+                <ImageView
+                    android:id="@+id/tipsImage"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/tips_icon"
+                    android:layout_alignParentEnd="true"
+                    android:layout_alignParentRight="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginRight="60dp"
+                    />
+
+                    <TextView
+                        android:id="@+id/TipsText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="20dp"
+                        android:text="A healthy resting heart rate \nfor you is in the range of\n56bpm and 73bpm"
+                        android:textSize="20dp"
+                        android:layout_centerVertical="true"
+                        android:layout_alignLeft="@+id/quickTipsBackground"/>
+
+            </RelativeLayout>
 
 
         </LinearLayout>

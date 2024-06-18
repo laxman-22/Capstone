@@ -57,40 +57,28 @@
                     android:paddingRight="10dp"
                     android:src="@drawable/gray_rectangle" />
 
-                <TextView
-                    android:id="@+id/detailPulse"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="50dp"
-                    android:text="N/A"
-                    android:textSize="40dp"
-                    android:layout_centerVertical="true"
-                    />
-
-                <TextView
-                    android:id="@+id/bpmLabel"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginLeft="100dp"
-                    android:text="resting\n   bpm"
-                    android:textSize="20dp"
-                    android:layout_centerVertical="true"
-                    android:layout_alignLeft="@+id/detailPulse"
-                    />
 
 
                 <ImageView
-                    android:id="@+id/heartImgViewRealtime"
-                    android:layout_width="33dp"
-                    android:layout_height="28dp"
+                    android:id="@+id/tipsImage"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/tips_icon"
                     android:layout_alignParentEnd="true"
                     android:layout_alignParentRight="true"
                     android:layout_centerVertical="true"
-                    android:layout_marginStart="20dp"
-                    android:layout_marginRight="35dp"
-                    android:layout_marginBottom="25dp"
-                    android:layout_toEndOf="@+id/bpmLabel"
-                    android:src="@drawable/_icon__heart_" />
+                    android:layout_marginRight="60dp"
+                    />
+
+                <TextView
+                    android:id="@+id/TipsText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="20dp"
+                    android:text="A healthy oxygen saturation\nlevel for you is in the range of\n90%-100%"
+                    android:textSize="20dp"
+                    android:layout_centerVertical="true"
+                    android:layout_alignLeft="@+id/currentPulse"/>
 
 
             </RelativeLayout>

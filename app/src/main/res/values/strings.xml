@@ -32,4 +32,9 @@
         <item>Last Year</item>
         <item>Last 2 Years</item>
     </string-array>
+    <string-array name="sex_options">
+        <item>Male</item>
+        <item>Female</item>
+    </string-array>
+
 </resources>
