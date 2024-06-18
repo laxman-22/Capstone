@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
@@ -16,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.core.app.ActivityCompat;
@@ -25,13 +27,39 @@ import androidx.core.content.res.ResourcesCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProvider;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
+import com.example.capstone.MainActivity;
 import com.example.capstone.R;
+import com.example.capstone.SignUpPage;
 import com.example.capstone.databinding.FragmentNotificationsBinding;
+import com.example.capstone.ui.home.HomeFragment;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 public class NotificationsFragment extends Fragment {
 
     private FragmentNotificationsBinding binding;
+    private int notif_id;
 
 
     public View onCreateView(@NonNull LayoutInflater inflater,
@@ -41,13 +69,7 @@ public class NotificationsFragment extends Fragment {
 
         binding = FragmentNotificationsBinding.inflate(inflater, container, false);
         View root = binding.getRoot();
-        createNotification("Fall Detected!", "A fall has been detected, notifying emergency contacts.");
-//        createNotification("Abnormal Pulse Detected!", "Contact your health provider.");
-//        createNotification("Low Oxygen Sat. Detected!", "Contact your health provider.");
-//
-//        createNotification("Fall Detected", "A fall has been detected, notifying emergency contacts.");
-//        createNotification("Abnormal Pulse Detected!", "Contact your health provider.");
-//        createNotification("Low Oxygen Sat. Detected!", "Contact your health provider.");
+
         return root;
     }
 
@@ -55,6 +77,185 @@ public class NotificationsFragment extends Fragment {
     public void onDestroyView() {
         super.onDestroyView();
         binding = null;
+    }
+    @Override
+    public void onResume() {
+        super.onResume();
+        Handler handler = new Handler();
+        Runnable refreshNotifications = new Runnable() {
+            @Override
+            public void run() {
+                checkNotifications();
+                handler.postDelayed(this, 5000);
+            }
+        };
+        handler.postDelayed(refreshNotifications,5000);
+    }
+
+    public void checkNotifications() {
+        try {
+            // Create a TrustManager that trusts all certificates
+            TrustManager[] trustAllCerts = new TrustManager[]{
+                    new X509TrustManager() {
+                        @Override
+                        public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                        }
+
+                        @Override
+                        public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                        }
+
+                        @Override
+                        public X509Certificate[] getAcceptedIssuers() {
+                            return new X509Certificate[]{};
+                        }
+                    }
+            };
+
+            // Initialize SSLContext with the custom TrustManager
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, trustAllCerts, new SecureRandom());
+
+            // Set the SSL socket factory for Volley's HurlStack
+            HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
+            HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
+                @Override
+                public boolean verify(String hostname, SSLSession session) {
+                    return true; // Trust all hostnames
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        RequestQueue volleyQueue = Volley.newRequestQueue(getContext());
+
+        String url = "https://78.138.17.29:3000/getNotif";
+        JsonObjectRequest newjsonObjectRequest = new JsonObjectRequest(
+                Request.Method.GET,
+                url,
+                null,
+                response -> {
+
+                    try {
+                        JSONArray jsonArray = response.getJSONArray("results"); // Assuming "users" is the key for your array
+                        for (int i = 0; i < jsonArray.length(); i++) {
+                            JSONObject userObject = jsonArray.getJSONObject(i);
+                            // Parse user data here
+                            int fallDetected = userObject.getInt("fall_detected");
+                            int lowPulse = userObject.getInt("low_pulse");
+                            int lowOxSat= userObject.getInt("low_ox_sat");
+                            int sent= userObject.getInt("sent");
+                            notif_id = userObject.getInt("notif_id");
+
+                            if (fallDetected == 1 && sent == 0) {
+                                createNotification("Fall Detected!", "A fall has been detected, notifying emergency contacts.");
+                            } if (lowPulse == 1 && sent == 0) {
+                                createNotification("Abnormal Pulse Detected!", "Contact your health provider.");
+                            } if (lowOxSat == 1 && sent == 0) {
+                                createNotification("Low Oxygen Sat. Detected!", "Contact your health provider.");
+                            }
+                            updateStatus();
+
+                        }
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }                },
+                error -> {
+                    if (error.networkResponse != null) {
+                        Log.e("Response", "Error response code: " + error.networkResponse.statusCode);
+                        Log.e("Response", "Error response data: " + new String(error.networkResponse.data));
+                    }
+
+                    Toast.makeText(getContext(), "Some error occurred! Cannot fetch response", Toast.LENGTH_LONG).show();
+                    Log.e("MainActivity", "Error: " + error.getMessage(), error);
+                }
+        ) { @Override
+        public Map<String, String> getHeaders() throws AuthFailureError {
+            Map<String, String> headers = new HashMap<>();
+            headers.put("x-api-key", SignUpPage.apiKey);
+
+            // Add other headers if needed
+            return headers;
+        }
+        };
+        volleyQueue.add(newjsonObjectRequest);
+
+    }
+    private void updateStatus() {
+        try {
+            // Create a TrustManager that trusts all certificates
+            TrustManager[] trustAllCerts = new TrustManager[]{
+                    new X509TrustManager() {
+                        @Override
+                        public void checkClientTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+
+                        }
+
+                        @Override
+                        public void checkServerTrusted(X509Certificate[] chain, String authType) throws CertificateException {
+                        }
+
+                        @Override
+                        public X509Certificate[] getAcceptedIssuers() {
+                            return new X509Certificate[]{};
+                        }
+                    }
+            };
+
+            // Initialize SSLContext with the custom TrustManager
+            SSLContext sslContext = SSLContext.getInstance("TLS");
+            sslContext.init(null, trustAllCerts, new SecureRandom());
+
+            // Set the SSL socket factory for Volley's HurlStack
+            HttpsURLConnection.setDefaultSSLSocketFactory(sslContext.getSocketFactory());
+            HttpsURLConnection.setDefaultHostnameVerifier(new HostnameVerifier() {
+                @Override
+                public boolean verify(String hostname, SSLSession session) {
+                    return true; // Trust all hostnames
+                }
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        RequestQueue volleyQueue = Volley.newRequestQueue(getContext());
+
+        String url = "https://78.138.17.29:3000/setStatus";
+        JSONObject jsonObject = new JSONObject();
+        Log.d("balls", notif_id +"");
+
+        try {
+            jsonObject.put("notif_id", notif_id);
+            jsonObject.put("sent", 1);
+        } catch (JSONException e) {
+            throw new RuntimeException(e);
+        }
+        JsonObjectRequest newjsonObjectRequest = new JsonObjectRequest(
+                Request.Method.PUT,
+                url,
+                jsonObject,
+                response -> {
+                    },
+                error -> {
+                    if (error.networkResponse != null) {
+                        Log.e("Response", "Error response code: " + error.networkResponse.statusCode);
+                        Log.e("Response", "Error response data: " + new String(error.networkResponse.data));
+                    }
+
+                    Toast.makeText(getContext(), "Some error occurred! Cannot fetch response", Toast.LENGTH_LONG).show();
+                    Log.e("MainActivity", "Error: " + error.getMessage(), error);
+                }
+        ) { @Override
+        public Map<String, String> getHeaders() throws AuthFailureError {
+            Map<String, String> headers = new HashMap<>();
+            headers.put("x-api-key", SignUpPage.apiKey);
+
+            // Add other headers if needed
+            return headers;
+        }
+        };
+        volleyQueue.add(newjsonObjectRequest);
     }
 
     public void createNotification(String messageType, String messageDescription) {

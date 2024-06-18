@@ -3,36 +3,102 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout
+
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="vertical">
-        <Spinner
-            android:id="@+id/spinner"
-            android:layout_width="173dp"
-            android:layout_height="44dp"
-            android:text="Last 7 Days" />
+        android:layout_height="match_parent">
 
-
-        <ImageView
-            android:id="@+id/stepsImgView"
-            android:layout_width="23dp"
-            android:layout_height="20dp"
-            android:layout_marginLeft="20dp"
-            android:src="@drawable/material_symbols_steps_outline"/>
-
-        <com.github.mikephil.charting.charts.BarChart
-            android:id="@+id/stepsBarChart"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="300dp"/>
-        <com.github.mikephil.charting.charts.LineChart
-            android:id="@+id/stepsLineChart"
-            android:layout_width="match_parent"
-            android:layout_height="300dp"/>
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+            <Spinner
+                android:id="@+id/spinner"
+                android:layout_width="173dp"
+                android:layout_height="44dp"
+                android:text="Last 7 Days" />
 
 
+            <ImageView
+                android:id="@+id/stepsImgView"
+                android:layout_width="23dp"
+                android:layout_height="20dp"
+                android:layout_marginLeft="20dp"
+                android:src="@drawable/material_symbols_steps_outline"/>
 
-    </LinearLayout>
+            <com.github.mikephil.charting.charts.BarChart
+                android:id="@+id/stepsBarChart"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"/>
+            <com.github.mikephil.charting.charts.LineChart
+                android:id="@+id/stepsLineChart"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"/>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+
+                <ImageView
+                    android:id="@+id/quickTipsBackground"
+                    android:layout_width="match_parent"
+                    android:layout_height="125dp"
+                    android:paddingLeft="10dp"
+                    android:paddingRight="10dp"
+                    android:paddingTop="10dp"
+                    android:src="@drawable/gray_rectangle" />
+
+
+                <ImageView
+                    android:id="@+id/tipsImage"
+                    android:layout_width="35dp"
+                    android:layout_height="35dp"
+                    android:src="@drawable/tips_icon"
+                    android:layout_alignParentStart="true"
+                    android:layout_alignParentLeft="true"
+                    android:layout_centerVertical="true"
+                    android:layout_marginLeft="20dp"
+                    />
+
+                <TextView
+                    android:id="@+id/TipsText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="80dp"
+                    android:text="Distance \nTravelled\nToday: "
+                    android:textSize="20dp"
+                    android:layout_centerVertical="true"
+                    android:layout_alignLeft="@+id/quickTipsBackground"
+                    />
+
+                <TextView
+                    android:id="@+id/distanceData"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="210dp"
+                    android:text="2.1"
+                    android:textSize="40dp"
+                    android:layout_centerVertical="true"
+                    />
+
+                <TextView
+                    android:id="@+id/kmText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginLeft="300dp"
+                    android:text="km"
+                    android:textSize="20dp"
+                    android:layout_centerVertical="true"
+                    android:layout_alignLeft="@+id/quickTipsBackground"
+                    />
+
+            </RelativeLayout>
+
+
+        </LinearLayout>
+
+    </ScrollView>
+
 
 
 

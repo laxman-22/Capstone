@@ -2,13 +2,20 @@ package com.example.capstone;
 
 import static android.content.ContentValues.TAG;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
+import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,7 +26,21 @@ import androidx.navigation.ui.NavigationUI;
 
 import com.example.capstone.databinding.ActivityHomePageBinding;
 
-import java.util.Random;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.security.SecureRandom;
+import java.security.cert.CertificateException;
+import java.security.cert.X509Certificate;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.net.ssl.HostnameVerifier;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSession;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 
 public class HomePage extends AppCompatActivity {
     private boolean hasDevices = false;
@@ -41,10 +62,6 @@ public class HomePage extends AppCompatActivity {
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_activity_home_page);
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         NavigationUI.setupWithNavController(binding.navView, navController);
-
-        // search the firebase database for any devices upon login
-
-
 
     }
 
@@ -75,5 +92,11 @@ public class HomePage extends AppCompatActivity {
         Intent i = new Intent(this, StepsDetailActivity.class);
         startActivity(i);
     }
+    public void addAuthorizedUser(View view) {
+        Intent i = new Intent(this, AddAuthorizedUserActivity.class);
+        startActivity(i);
+
+    }
+
 
 }

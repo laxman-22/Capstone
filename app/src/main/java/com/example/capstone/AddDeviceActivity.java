@@ -23,13 +23,17 @@ import android.bluetooth.BluetoothProfile;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -38,18 +42,28 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.toolbox.JsonObjectRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.capstone.databinding.FragmentHomeBinding;
 import com.example.capstone.ui.home.HomeFragment;
 import com.google.android.gms.maps.model.LatLng;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -64,18 +78,22 @@ public class AddDeviceActivity extends AppCompatActivity {
 
     private UUID healthService = UUID.fromString("19B10000-E8F2-537E-4F6C-D104768A1214");
 
-    private UUID pulseUuid = UUID.fromString("19B10001-E8F2-537E-4F6C-D104768A1215");
-    private UUID oxygenUuid = UUID.fromString("19B10001-E8F2-537E-4F6C-D104768A1216");
-    private UUID stepUuid = UUID.fromString("19B10001-E8F2-537E-4F6C-D104768A1217");
+    private UUID deviceIdUuid = UUID.fromString("19B10001-E8F2-537E-4F6C-D104768A1215");
+    private UUID emailUuid = UUID.fromString("19B10001-E8F2-537E-4F6C-D104768A1216");
+    private UUID wifiSsidUuid = UUID.fromString("19B10001-E8F2-537E-4F6C-D104768A1217");
 
-    private UUID latitudeUuid = UUID.fromString("19B10001-E8F2-537E-4F6C-D104768A1218");
+    private UUID wifiPassUuid = UUID.fromString("19B10001-E8F2-537E-4F6C-D104768A1218");
 
-    private UUID longitudeUuid = UUID.fromString("19B10001-E8F2-537E-4F6C-D104768A1219");
+    private UUID ageUuid = UUID.fromString("19B10001-E8F2-537E-4F6C-D104768A1219");
 
-    private UUID batteryUuid = UUID.fromString("19B10001-E8F2-537E-4F6C-D104768A1220");
+    private UUID sexUuid = UUID.fromString("19B10001-E8F2-537E-4F6C-D104768A1220");
 
+    private UUID weightUuid = UUID.fromString("19B10001-E8F2-537E-4F6C-D104768A1221");
 
     private boolean scanning;
+
+    private int scanCount = 5;
+    private boolean ssidSuccess, emailSuccess, passSuccess, ageSuccess, sexSuccess, weightSuccess;
 
     private Handler handler = new Handler();
 
@@ -150,7 +168,7 @@ public class AddDeviceActivity extends AppCompatActivity {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
             super.onScanResult(callbackType, result);
-            BluetoothDevice device = result.getDevice();
+                BluetoothDevice device = result.getDevice();
             try {
                 if (device.getAddress() != null && device.getName().equals("HEALTH SERVICE") && deviceFound != true) {
                     Log.d("Bluetooth", device.getName().toString());
@@ -186,6 +204,10 @@ public class AddDeviceActivity extends AppCompatActivity {
                 Log.d("Connection State Change", "Connected");
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
                 Log.d("Connection State Change", "Disconnected");
+                if (scanCount > 0) {
+                    retryConnection();
+                    scanCount--;
+                }
             }
         }
 
@@ -199,88 +221,15 @@ public class AddDeviceActivity extends AppCompatActivity {
 
             if (service != null) {
 
-                BluetoothGattCharacteristic pulseCharacteristic = service.getCharacteristic(pulseUuid);
-
-                BluetoothGattCharacteristic oxygenCharacteristic = service.getCharacteristic(oxygenUuid);
-
-                BluetoothGattCharacteristic stepCharacteristic = service.getCharacteristic(stepUuid);
-
-                BluetoothGattCharacteristic batteryCharacteristic = service.getCharacteristic(batteryUuid);
-
-                BluetoothGattCharacteristic latCharacteristic = service.getCharacteristic(latitudeUuid);
-
-                BluetoothGattCharacteristic lonCharacteristic = service.getCharacteristic(longitudeUuid);
-
-                Thread readPulse = new Thread(() -> {
-                    while (true) {
-                        gatt.readCharacteristic(pulseCharacteristic);
-                        try {
-                            Thread.sleep(100);
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                });
-                readPulse.start();
-                Thread readOx = new Thread(() -> {
-                    while (true) {
-                        gatt.readCharacteristic(oxygenCharacteristic);
-                        try {
-                            Thread.sleep(100);
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                });
-                readOx.start();
-                Thread readSteps = new Thread(() -> {
-                    while (true) {
-                        gatt.readCharacteristic(stepCharacteristic);
-                        try {
-                            Thread.sleep(10);
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                });
-                readSteps.start();
-                Thread readBattery = new Thread(() -> {
-                    while (true) {
-                        gatt.readCharacteristic(batteryCharacteristic);
-                        try {
-                            Thread.sleep(10);
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                });
-                readBattery.start();
-                Thread readLat = new Thread(() -> {
-                    while (true) {
-                        gatt.readCharacteristic(latCharacteristic);
-                        try {
-                            Thread.sleep(10);
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                });
-                readLat.start();
-                Thread readLon = new Thread(() -> {
-                    while (true) {
-                        gatt.readCharacteristic(lonCharacteristic);
-                        try {
-                            Thread.sleep(10);
-                        } catch (InterruptedException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-                });
-                readLon.start();
-
+                BluetoothGattCharacteristic deviceIdCharacteristic = service.getCharacteristic(deviceIdUuid);
+                gatt.readCharacteristic(deviceIdCharacteristic);
 
             } else {
                 Log.d("Disconnected Device", "Disconnected Device");
+                if (scanCount > 0) {
+                    retryConnection();
+                    scanCount--;
+                }
             }
 
         }
@@ -290,53 +239,244 @@ public class AddDeviceActivity extends AppCompatActivity {
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             super.onCharacteristicRead(gatt, characteristic, status);
             Log.d("Characteristic Read", "Characteristic UUID: " + characteristic.getUuid());
+            BluetoothGattService service = gatt.getService(healthService);
 
+            BluetoothGattCharacteristic wifiSsidCharacteristic = service.getCharacteristic(wifiSsidUuid);
+            BluetoothGattCharacteristic wifiPassCharacteristic = service.getCharacteristic(wifiPassUuid);
+            BluetoothGattCharacteristic emailCharacteristic = service.getCharacteristic(emailUuid);
+            BluetoothGattCharacteristic ageCharacteristic = service.getCharacteristic(ageUuid);
+            BluetoothGattCharacteristic sexCharacteristic = service.getCharacteristic(sexUuid);
+            BluetoothGattCharacteristic weightCharacteristic = service.getCharacteristic(weightUuid);
+
+            WifiManager wifiManager = (WifiManager) getApplicationContext().getSystemService(Context.WIFI_SERVICE);
+            WifiInfo info = wifiManager.getConnectionInfo();
+            String ssid  = info.getSSID().replaceAll("\"", "");
+            Log.d("bigballs", ssid);
+            if (ssid != null) {
+                byte[] ssidBytes = ssid.getBytes(StandardCharsets.UTF_8);
+                wifiSsidCharacteristic.setValue(ssidBytes);
+            }
+
+            if (MainActivity.wifiPass != "") {
+                byte[] wifiPassBytes = MainActivity.wifiPass.getBytes(StandardCharsets.UTF_8);
+                wifiPassCharacteristic.setValue(wifiPassBytes);
+                Log.d("bigballs", MainActivity.wifiPass);
+            }
+
+            if (MainActivity.email != "") {
+                byte[] emailBytes = MainActivity.email.getBytes(StandardCharsets.UTF_8);
+                emailCharacteristic.setValue(emailBytes);
+                Log.d("bigballs", MainActivity.email);
+            }
+
+            if (MainActivity.age != -1) {
+                byte[] ageBytes = Integer.toString(MainActivity.age).getBytes(StandardCharsets.UTF_8);
+                ageCharacteristic.setValue(ageBytes);
+                Log.d("bigballs", Integer.toString(MainActivity.age));
+            }
+
+
+            if (MainActivity.sex != "") {
+                byte[] sexBytes = MainActivity.sex.getBytes(StandardCharsets.UTF_8);
+                sexCharacteristic.setValue(sexBytes);
+                Log.d("bigballs", MainActivity.sex);
+            }
+
+
+
+            if (MainActivity.weight != -1) {
+                byte[] weightBytes = Float.toString(MainActivity.weight).getBytes(StandardCharsets.UTF_8);
+                weightCharacteristic.setValue(weightBytes);
+                Log.d("bigballs", Float.toString(MainActivity.weight));
+            }
+
+            try {
+                Thread.sleep(5000);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
 
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 broadcastUpdate(characteristic);
+                Handler writeDataSsidHandler = new Handler(Looper.getMainLooper());
+                Runnable writeDataSsid = new Runnable() {
+                    @Override
+                    public void run() {
+                        Log.d("Successssss: ", "runnable" + ssidSuccess);
+                        if (ssidSuccess) {
+                            writeDataSsidHandler.removeCallbacks(this);
+                        } else {
+                            gatt.writeCharacteristic(wifiSsidCharacteristic);
+                            writeDataSsidHandler.postDelayed(this, 10);
+
+                        }
+                    }
+                };
+                writeDataSsidHandler.postDelayed(writeDataSsid,10);
+
+                Handler writeDataPassHandler = new Handler(Looper.getMainLooper());
+                Runnable writeDataPwd = new Runnable() {
+                    @Override
+                    public void run() {
+                        if (passSuccess) {
+                            writeDataPassHandler.removeCallbacks(this);
+                        } else {
+                            gatt.writeCharacteristic(wifiPassCharacteristic);
+                            writeDataPassHandler.postDelayed(this, 10);
+                        }
+
+                    }
+                };
+                writeDataPassHandler.postDelayed(writeDataPwd,10);
+
+
+                Handler writeDataEmailHandler = new Handler(Looper.getMainLooper());
+                Runnable writeDataEmail = new Runnable() {
+                    @Override
+                    public void run() {
+                        if (emailSuccess) {
+                            writeDataEmailHandler.removeCallbacks(this);
+                        } else {
+                            gatt.writeCharacteristic(emailCharacteristic);
+                            writeDataEmailHandler.postDelayed(this, 10);
+                        }
+
+                    }
+                };
+                writeDataEmailHandler.postDelayed(writeDataEmail,10);
+
+                Handler writeDataAgeHandler = new Handler(Looper.getMainLooper());
+                Runnable writeDataAge = new Runnable() {
+                    @Override
+                    public void run() {
+                        if (ageSuccess) {
+                            writeDataAgeHandler.removeCallbacks(this);
+                        } else {
+                            gatt.writeCharacteristic(ageCharacteristic);
+                            writeDataAgeHandler.postDelayed(this, 10);
+                        }
+
+                    }
+                };
+                writeDataAgeHandler.postDelayed(writeDataAge,10);
+
+
+                Handler writeDataSexHandler = new Handler(Looper.getMainLooper());
+                Runnable writeDataSex = new Runnable() {
+                    @Override
+                    public void run() {
+                        if (sexSuccess) {
+                            writeDataSexHandler.removeCallbacks(this);
+                        } else {
+                            gatt.writeCharacteristic(sexCharacteristic);
+                            writeDataSexHandler.postDelayed(this, 10);
+                        }
+
+                    }
+                };
+                writeDataSexHandler.postDelayed(writeDataSex,10);
+
+                Handler writeDataWeightHandler = new Handler(Looper.getMainLooper());
+                Runnable writeDataWeight = new Runnable() {
+                    @Override
+                    public void run() {
+                        if (weightSuccess) {
+                            writeDataWeightHandler.removeCallbacks(this);
+                        } else {
+                            gatt.writeCharacteristic(weightCharacteristic);
+                            writeDataWeightHandler.postDelayed(this, 10);
+                        }
+
+                    }
+                };
+                writeDataWeightHandler.postDelayed(writeDataWeight,10);
+
+
             }
 
+        }
+
+        @Override
+        public void onCharacteristicWrite(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
+            super.onCharacteristicWrite(gatt, characteristic, status);
+            Log.d("Characteristic Write", "Characteristic UUID: " + characteristic.getUuid());
+
+            if (status == BluetoothGatt.GATT_SUCCESS) {
+                // Characteristic write successful
+                Log.d(TAG, "Characteristic write successful");
+                if (characteristic.getUuid().equals(emailUuid)) {
+                    emailSuccess = true;
+                } else if (characteristic.getUuid().equals(wifiSsidUuid)) {
+                    ssidSuccess = true;
+                    Log.d("Successssss: ", "balls" + ssidSuccess);
+                } else if (characteristic.getUuid().equals(wifiPassUuid)) {
+                    passSuccess = true;
+                } else if (characteristic.getUuid().equals(sexUuid)) {
+                    sexSuccess = true;
+                } else if (characteristic.getUuid().equals(weightUuid)) {
+                    weightSuccess = true;
+                } else if (characteristic.getUuid().equals(ageUuid)) {
+                    ageSuccess = true;
+                }
+
+
+
+
+            } else {
+                // Characteristic write failed
+                Log.e(TAG, "Characteristic write failed with status: " + status);
+            }
         }
         private void broadcastUpdate(BluetoothGattCharacteristic characteristic) {
 
             runOnUiThread(new Runnable() {
                 @Override
                 public void run() {
-                    byte[] data = characteristic.getValue();
-                    int receivedValue = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).getInt();
+                    String value = characteristic.getStringValue(0);
 
-                    float result = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).getFloat();
-
-
-                    if (characteristic.getUuid().toString().equals(pulseUuid.toString())) {
+                    if (characteristic.getUuid().toString().equals(deviceIdUuid.toString())) {
                         // check if bpm service
-                        Log.d("Pulse Data Received", Integer.toString(receivedValue));
-                        HomeFragment.bpm = receivedValue;
-                    }
-                    else if (characteristic.getUuid().toString().equals(oxygenUuid.toString())) {
-                        // check if ox service
-                        Log.d("Oxygen Data Received", Integer.toString(receivedValue));
-                        HomeFragment.oxSat = receivedValue;
-                    }
-                    else if (characteristic.getUuid().toString().equals(stepUuid.toString())) {
-                        // check if step service
-                        Log.d("Steps Data Received", Integer.toString(receivedValue));
-                        HomeFragment.steps = receivedValue;
-                    } else if (characteristic.getUuid().toString().equals(batteryUuid.toString())) {
-                        // check if battery service
-                        Log.d("Battery Data Received", Integer.toString(receivedValue));
-                        HomeFragment.battery = receivedValue;
-                    } else if (characteristic.getUuid().toString().equals(latitudeUuid.toString())) {
-                        // check if lat service
-                        Log.d("Latitude Data Received", ""+result);
-                        HomeFragment.lat = result;
+                        Log.d("Device ID", value);
+                        HomeFragment.isRegistered = 1;
+                        RequestQueue volleyQueue = Volley.newRequestQueue(AddDeviceActivity.this);
 
-                    } else if (characteristic.getUuid().toString().equals(longitudeUuid.toString())) {
-                        // check if lon service
-                        Log.d("Longitude Data Received", ""+result);
-                        HomeFragment.lon = result;
-                    }
+                        String createurl = "https://78.138.17.29:3000/registerDevice";
+                        JSONObject createjsonObject = new JSONObject();
+                        try {
+                            createjsonObject.put("is_registered", 1);
+                            createjsonObject.put("device_id", value);
+                        } catch (JSONException e) {
+                            throw new RuntimeException(e);
+                        }
+                        JsonObjectRequest newjsonObjectRequest = new JsonObjectRequest(
+                                Request.Method.PUT,
+                                createurl,
+                                createjsonObject,
+                                response -> {
+                                    Log.d("Response", "Raw response: " + response.toString());
 
+                                },
+                                error -> {
+                                    if (error.networkResponse != null) {
+                                        Log.e("Response", "Error response code: " + error.networkResponse.statusCode);
+                                        Log.e("Response", "Error response data: " + new String(error.networkResponse.data));
+                                    }
+
+                                    Toast.makeText(AddDeviceActivity.this, "Some error occurred! Cannot fetch response", Toast.LENGTH_LONG).show();
+                                    Log.e("SignUpPage", "Error: " + error.getMessage(), error);
+                                }
+                        ) { @Override
+                        public Map<String, String> getHeaders() throws AuthFailureError {
+                            Map<String, String> headers = new HashMap<>();
+                            headers.put("x-api-key", SignUpPage.apiKey.toString());
+
+                            // Add other headers if needed
+                            return headers;
+                        }
+                        };
+                        volleyQueue.add(newjsonObjectRequest);
+
+                    }
 
                 }
             });
@@ -353,6 +493,15 @@ public class AddDeviceActivity extends AppCompatActivity {
                     new String[]{Manifest.permission.ACCESS_FINE_LOCATION},
                     42);
         }
+    }
+    private void retryConnection() {
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                // Reconnect to the device here
+                connectToDevice(arduinoDevice);
+            }
+        }, 5000); // Adjust RETRY_DELAY_MS as needed
     }
 
 }

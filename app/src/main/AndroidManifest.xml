@@ -13,6 +13,7 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
 
     <application
         android:allowBackup="true"
@@ -62,6 +63,12 @@
             android:name=".HomePage"
             android:exported="false"
             android:label="@string/title_activity_home_page"
+            android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
+            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".AddAuthorizedUserActivity"
+            android:exported="false"
+            android:label="AddAuthorizedUser"
             android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
             android:screenOrientation="portrait"/>
         <activity
