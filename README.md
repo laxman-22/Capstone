@@ -2,7 +2,7 @@
 
 This repository contains the code for an Android application used in the Wearable Health Monitoring System.
 
-Below is a High-Level Design diagram of how this system operates in order to allow for this system to work successfully:
+Below is a High-Level Design diagram of how this system operates in order to allow for users to use our product:
 
 ![High Level Design Diagram](https://github.com/laxman-22/Capstone/blob/master/images/HLD.png)
 
