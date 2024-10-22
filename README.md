@@ -1,4 +1,4 @@
-### Computer Engineering Capstone Project
+# Computer Engineering Capstone Project
 
 This repository contains the code for an Android application used in the Wearable Health Monitoring System.
 
